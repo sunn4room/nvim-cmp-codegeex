@@ -31,9 +31,10 @@ M.setup = function(opts)
   end
 
   function source:complete(params, callback)
+    local prompt = string.sub(params.context.cursor_before_line, params.offset)
     local path = vim.fn.expand "%"
     local language = vim.api.nvim_buf_get_option(0, "filetype")
-    local cursor = { params.context.cursor.line, params.context.cursor.character, }
+    local cursor = { params.context.cursor.line, params.context.cursor.character }
     local range = {
       math.max(0, cursor[1] - (opts.range or 100)),
       math.min(vim.fn.line "$" - 1, cursor[1] + (opts.range or 100)),
@@ -63,11 +64,10 @@ M.setup = function(opts)
           },
         },
       },
-      { text = true, },
+      { text = true },
       vim.schedule_wrap(function(result)
         local items = {}
         if result.code == 0 then
-          local prompt = string.sub(params.context.cursor_before_line, params.offset)
           for _, choice in ipairs(vim.fn.json_decode(result.stdout).choices) do
             table.insert(items, {
               label = prompt .. choice.message.content,
@@ -85,6 +85,12 @@ M.setup = function(opts)
         callback(items)
       end)
     )
+    callback {
+      isIncomplete = true,
+      items = {
+        { label = prompt },
+      },
+    }
   end
 
   require "cmp".register_source("codegeex", source)
