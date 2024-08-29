@@ -30,11 +30,11 @@ M.setup = function(opts)
     return "CodeGeeX"
   end
 
-  function source:complete(params, callback)
-    local prompt = string.sub(params.context.cursor_before_line, params.offset)
+  function source:complete(request, callback)
+    local prompt = string.sub(request.context.cursor_before_line, request.offset)
     local path = vim.fn.expand "%"
     local language = vim.api.nvim_buf_get_option(0, "filetype")
-    local cursor = { params.context.cursor.line, params.context.cursor.character }
+    local cursor = { request.context.cursor.line, request.context.cursor.character }
     local range = {
       math.max(0, cursor[1] - (opts.range or 100)),
       math.min(vim.fn.line "$" - 1, cursor[1] + (opts.range or 100)),
@@ -73,7 +73,13 @@ M.setup = function(opts)
               label = prompt .. choice.message.content,
               documentation = {
                 kind = "plaintext",
-                value = "--- CodeGeeX ---\n" .. params.context.cursor_before_line .. choice.message.content,
+                value = table.concat({
+                  "--- begin ---\n",
+                  request.context.cursor_before_line,
+                  choice.message.content,
+                  request.context.cursor_after_line,
+                  "\n--- end ---",
+                }, ""),
               },
               cmp = {
                 kind_text = "CodeGeeX",
@@ -88,7 +94,7 @@ M.setup = function(opts)
     callback {
       isIncomplete = true,
       items = {
-        { label = prompt },
+        { label = prompt .. "...", insertText = prompt },
       },
     }
   end
