@@ -9,6 +9,7 @@ nvim-cmp source for CodeGeeX.
   opts = {
     apikey = "xxx", -- the api key of codegeex,
     range = 100, -- the range to current line, the content in this range will send to codegeex to complete
+	delay = 500, -- debounce timeout. disabled if nil.
   },
 }
 ```
