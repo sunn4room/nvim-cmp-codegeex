@@ -6,6 +6,14 @@ local apikey_dirs = {
   vim.env.HOME,
 }
 
+local ai_tri_chars = {}
+for i = 32, 126 do
+  ai_tri_chars[#ai_tri_chars + 1] = string.char(i)
+end
+ai_tri_chars[#ai_tri_chars + 1] = ""
+ai_tri_chars[#ai_tri_chars + 1] = " "
+ai_tri_chars[#ai_tri_chars + 1] = "\t"
+
 M.setup = function(opts)
   local source = {}
   local timer = nil
@@ -28,8 +36,8 @@ M.setup = function(opts)
     return false
   end
 
-  function source:get_debug_name()
-    return "CodeGeeX"
+  function source:get_trigger_characters()
+    return ai_tri_chars
   end
 
   function source:complete(request, callback)
@@ -59,6 +67,7 @@ M.setup = function(opts)
       items = {
         {
           label = prompt .. "~",
+          sortText = prompt,
           insertText = prompt,
           cmp = {
             kind_text = "CodeGeeX",
@@ -74,6 +83,7 @@ M.setup = function(opts)
         items = {
           {
             label = prompt .. "~~",
+            sortText = prompt,
             insertText = prompt,
             cmp = {
               kind_text = "CodeGeeX",
@@ -119,6 +129,7 @@ M.setup = function(opts)
               end
               table.insert(items, {
                 label = prompt .. content,
+                sortText = prompt,
                 documentation = {
                   kind = "plaintext",
                   value = table.concat({
