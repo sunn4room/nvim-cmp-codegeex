@@ -1,7 +1,7 @@
 local M = {}
 
 local apikey_dirs = {
-  vim.fn.stdpath "state",
+  vim.fn.stdpath("state"),
   vim.env.XDG_CONFIG_HOME or vim.env.HOME .. "/.config",
   vim.env.HOME,
 }
