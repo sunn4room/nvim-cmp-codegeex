@@ -13,7 +13,7 @@ nvim-cmp source for CodeGeeX.
 }
 ```
 
-> Some constances about nvim-cmp:
+> Some infos about nvim-cmp:
 >
 > -   source name is `codegeex`
 > -   kind text is `CodeGeeX`
