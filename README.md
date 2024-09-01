@@ -2,6 +2,8 @@
 
 nvim-cmp source for CodeGeeX.
 
+> Require nvim-0.10 with new feature `vim.system`
+
 ```lua
 -- lazy.nvim spec
 {
