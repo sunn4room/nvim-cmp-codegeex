@@ -40,6 +40,10 @@ M.setup = function(opts)
     return ai_tri_chars
   end
 
+  function source:get_position_encoding_kind()
+    return 'utf-8'
+  end
+
   function source:complete(request, callback)
     if timer then
       timer:stop()
@@ -67,7 +71,6 @@ M.setup = function(opts)
       items = {
         {
           label = prompt .. "~",
-          sortText = prompt,
           insertText = prompt,
           cmp = {
             kind_text = "CodeGeeX",
@@ -83,7 +86,6 @@ M.setup = function(opts)
         items = {
           {
             label = prompt .. "~~",
-            sortText = prompt,
             insertText = prompt,
             cmp = {
               kind_text = "CodeGeeX",
@@ -129,7 +131,6 @@ M.setup = function(opts)
               end
               table.insert(items, {
                 label = prompt .. content,
-                sortText = prompt,
                 documentation = {
                   kind = "plaintext",
                   value = table.concat({
