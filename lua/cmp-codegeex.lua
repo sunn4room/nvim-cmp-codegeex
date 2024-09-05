@@ -58,7 +58,7 @@ M.setup = function(opts)
     local prompt = string.sub(request.context.cursor_before_line, request.offset)
     local path = vim.fn.expand "%"
     local language = vim.api.nvim_buf_get_option(0, "filetype")
-    local cursor = { request.context.cursor.line, request.context.cursor.character }
+    local cursor = { request.context.cursor.row-1, request.context.cursor.col-1 }
     local range = {
       math.max(0, cursor[1] - (opts.range or 100)),
       math.min(vim.fn.line "$" - 1, cursor[1] + (opts.range or 100)),
