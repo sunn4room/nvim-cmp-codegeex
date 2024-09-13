@@ -9,9 +9,9 @@ nvim-cmp source for CodeGeeX.
 {
   "sunn4room/nvim-cmp-codegeex",
   opts = {
-    apikey = "xxx", -- the api key of codegeex,
-    range = 100, -- the range to current line, the content in this range will send to codegeex to complete
-    delay = 500, -- debounce timeout. disabled if nil.
+    apikey = "xxx", -- the api key of codegeex.
+    range = nil, -- the range to current line for completion context.
+    delay = nil, -- debounce timeout. 300 is a good choice.
   },
 }
 ```
