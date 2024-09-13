@@ -1,8 +1,8 @@
+> Require nvim-0.10 with new feature `vim.system`
+
 # nvim-cmp-codegeex
 
 nvim-cmp source for CodeGeeX.
-
-> Require nvim-0.10 with new feature `vim.system`
 
 ```lua
 -- lazy.nvim spec
@@ -15,6 +15,8 @@ nvim-cmp source for CodeGeeX.
   },
 }
 ```
+
+For security reason, codegeex source is not available by default. You should enable codegeex source with `vim.b.use_codegeex = true`.
 
 > Some infos about nvim-cmp:
 >

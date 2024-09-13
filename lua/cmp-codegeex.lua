@@ -20,6 +20,9 @@ M.setup = function(opts)
   local process = nil
 
   function source:is_available()
+    if not vim.b.use_codegeex then
+      return false
+    end
     if opts.apikey ~= nil then
       return true
     end
