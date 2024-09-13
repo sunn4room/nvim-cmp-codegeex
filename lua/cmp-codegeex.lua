@@ -44,7 +44,7 @@ M.setup = function(opts)
   end
 
   function source:get_position_encoding_kind()
-    return 'utf-8'
+    return "utf-8"
   end
 
   function source:complete(request, callback)
@@ -58,37 +58,25 @@ M.setup = function(opts)
       process = nil
     end
 
-    local prompt = string.sub(request.context.cursor_before_line, request.offset)
-    local path = vim.fn.expand "%"
-    local language = vim.api.nvim_buf_get_option(0, "filetype")
-    local cursor = { request.context.cursor.row-1, request.context.cursor.col-1 }
-    local range = {
-      math.max(0, cursor[1] - (opts.range or 100)),
-      math.min(vim.fn.line "$" - 1, cursor[1] + (opts.range or 100)),
-    }
-    local prefix = table.concat(vim.api.nvim_buf_get_text(0, range[1], 0, cursor[1], cursor[2], {}), "\n")
-    local suffix = table.concat(vim.api.nvim_buf_get_text(0, cursor[1], cursor[2], range[2], -1, {}), "\n")
-
-    callback {
-      isIncomplete = true,
-      items = {
-        {
-          label = prompt .. "~",
-          insertText = prompt,
-          cmp = {
-            kind_text = "CodeGeeX",
-            kind_hl_group = "CmpItemKindCodeGeeX",
-          },
-        },
-      },
-    }
 
     local start_curl = vim.schedule_wrap(function()
+      local prompt = string.sub(request.context.cursor_before_line, request.offset)
+      local path = vim.fn.expand "%"
+      local language = vim.api.nvim_buf_get_option(0, "filetype")
+      local cursor = { request.context.cursor.row - 1, request.context.cursor.col - 1 }
+      local line_count = vim.fn.line("$")
+      local range = {
+        math.max(0, cursor[1] - (opts.range or line_count)),
+        math.min(line_count - 1, cursor[1] + (opts.range or line_count)),
+      }
+      local prefix = table.concat(vim.api.nvim_buf_get_text(0, range[1], 0, cursor[1], cursor[2], {}), "\n")
+      local suffix = table.concat(vim.api.nvim_buf_get_text(0, cursor[1], cursor[2], range[2], -1, {}), "\n")
+
       callback {
         isIncomplete = true,
         items = {
           {
-            label = prompt .. "~~",
+            label = prompt .. "...",
             insertText = prompt,
             cmp = {
               kind_text = "CodeGeeX",
@@ -97,6 +85,7 @@ M.setup = function(opts)
           },
         },
       }
+
       process = vim.system(
         {
           "curl",
@@ -122,7 +111,6 @@ M.setup = function(opts)
         },
         { text = true },
         vim.schedule_wrap(function(result)
-          process = nil
           local items = {}
           if result.code == 0 and result.signal == 0 then
             for _, choice in ipairs(vim.fn.json_decode(result.stdout).choices) do
