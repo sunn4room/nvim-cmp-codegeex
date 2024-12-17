@@ -13,11 +13,13 @@ end
 ai_tri_chars[#ai_tri_chars + 1] = ""
 ai_tri_chars[#ai_tri_chars + 1] = " "
 ai_tri_chars[#ai_tri_chars + 1] = "\t"
+ai_tri_chars[#ai_tri_chars + 1] = "\n"
+ai_tri_chars[#ai_tri_chars + 1] = "\r"
+ai_tri_chars[#ai_tri_chars + 1] = "\r\n"
 
 M.setup = function(opts)
   local source = {}
-  local timer = nil
-  local process = nil
+  local count = 0
 
   function source:is_available()
     if not vim.b.use_codegeex then
@@ -26,14 +28,11 @@ M.setup = function(opts)
     if opts.apikey ~= nil then
       return true
     end
-    for _, dir in ipairs(apikey_dirs) do
-      local apikey_file = io.open(dir .. "/codegeex-apikey", "r")
-      if apikey_file then
-        local apikey = vim.fn.trim(apikey_file:read "*all")
-        opts.apikey = apikey
-        apikey_file:close()
-        return true
-      end
+    local apikey_file = io.open(opts.apikey_file, "r")
+    if apikey_file then
+      opts.apikey = vim.fn.trim(apikey_file:read("*all"))
+      apikey_file:close()
+      return true
     end
     vim.notify("CodeGeeX need your apikey!", 3)
     return false
@@ -48,18 +47,14 @@ M.setup = function(opts)
   end
 
   function source:complete(request, callback)
-    if timer then
-      timer:stop()
-      timer:close()
-      timer = nil
-    end
-    if process then
-      process:kill()
-      process = nil
-    end
+    count = count + 1
+    local id = count
+    vim.defer_fn(function()
+      if id ~= count then
+        callback(nil)
+        return
+      end
 
-
-    local start_curl = vim.schedule_wrap(function()
       local prompt = string.sub(request.context.cursor_before_line, request.offset)
       local path = vim.fn.expand "%"
       local language = vim.api.nvim_buf_get_option(0, "filetype")
@@ -72,21 +67,7 @@ M.setup = function(opts)
       local prefix = table.concat(vim.api.nvim_buf_get_text(0, range[1], 0, cursor[1], cursor[2], {}), "\n")
       local suffix = table.concat(vim.api.nvim_buf_get_text(0, cursor[1], cursor[2], range[2], -1, {}), "\n")
 
-      callback {
-        isIncomplete = true,
-        items = {
-          {
-            label = prompt .. "...",
-            insertText = prompt,
-            cmp = {
-              kind_text = "CodeGeeX",
-              kind_hl_group = "CmpItemKindCodeGeeX",
-            },
-          },
-        },
-      }
-
-      process = vim.system(
+      vim.system(
         {
           "curl",
           "--location",
@@ -111,51 +92,39 @@ M.setup = function(opts)
         },
         { text = true },
         vim.schedule_wrap(function(result)
-          local items = {}
           if result.code == 0 and result.signal == 0 then
-            for _, choice in ipairs(vim.fn.json_decode(result.stdout).choices) do
+            local result_obj = vim.fn.json_decode(result.stdout)
+            if result_obj.error then
+              vim.notify(result_obj.error.message, 3, { title = "CodeGeeX" })
+              callback(nil)
+            else
+              local choice = result_obj.choices[1]
               local content = choice.message.content
               local before = request.context.cursor_before_line
               local after = request.context.cursor_after_line
               if after == "" and content:sub(-1) == "\n" then
                 content = content:sub(1, -2)
               end
-              table.insert(items, {
-                label = prompt .. content,
+              callback({{
+                label = prompt .. "...",
+                insertText = prompt .. content,
                 documentation = {
-                  kind = "plaintext",
-                  value = table.concat({
-                    "--- begin ---",
-                    before .. content .. after,
-                    "--- end ---",
-                  }, "\n"),
+                  kind = "markdown",
+                  value = "```txt\n" .. before .. content .. after .. "\n```",
                 },
                 cmp = {
                   kind_text = "CodeGeeX",
                   kind_hl_group = "CmpItemKindCodeGeeX",
                 },
-              })
+              }})
             end
+          else
+            vim.notify("curl run failed!", 3, { title = "CodeGeeX" })
+            callback(nil)
           end
-          callback {
-            isIncomplete = true,
-            items = items,
-          }
         end)
       )
-    end)
-
-    if opts.delay then
-      timer = vim.uv.new_timer()
-      timer:start(opts.delay, 0, function()
-        timer:stop()
-        timer:close()
-        timer = nil
-        start_curl()
-      end)
-    else
-      start_curl()
-    end
+    end, opts.delay or 500)
   end
 
   require("cmp").register_source("codegeex", source)
