@@ -47,17 +47,15 @@ M.setup = function(opts)
     local function update_spinner()
       if spinner then
         spinner = spinner == #spinner_frames and 1 or spinner + 1
-        callback {
-          isIncomplete = true,
-          items = {{
-            label = prompt .. " " .. spinner_frames[spinner],
-            insertText = prompt,
-            cmp = {
-              kind_text = "CodeGeeX",
-              kind_hl_group = "CmpItemKindCodeGeeX",
-            },
-          }},
-        }
+        callback {{
+          label = prompt .. " " .. spinner_frames[spinner],
+          insertText = prompt,
+          filterText = prompt,
+          cmp = {
+            kind_text = "CodeGeeX",
+            kind_hl_group = "CmpItemKindCodeGeeX",
+          },
+        }}
         vim.defer_fn(function() update_spinner() end, 100)
       end
     end
@@ -102,7 +100,7 @@ M.setup = function(opts)
             if after == "" and content:sub(-1) == "\n" then
               content = content:sub(1, -2)
             end
-            callback({{
+            callback {{
               label = prompt .. content,
               documentation = {
                 kind = "markdown",
@@ -112,7 +110,7 @@ M.setup = function(opts)
                 kind_text = "CodeGeeX",
                 kind_hl_group = "CmpItemKindCodeGeeX",
               },
-            }})
+            }}
           end
         else
           vim.notify("curl run failed!", 3, { title = "CodeGeeX" })
