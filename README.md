@@ -12,15 +12,14 @@ nvim-cmp source for CodeGeeX.
     apikey = "xxx", -- the api key of codegeex.
     apikey_file = "/path/to/apikey/file", -- the api key file of codegeex.
     range = nil, -- the range to current line for completion context.
-    delay = nil, -- debounce timeout. 500 is a good choice.
   },
 }
 ```
 
-For security reason, codegeex source is not available by default. You should enable codegeex source with `vim.b.use_codegeex = true`.
+Codegeex source is not available by default. You should enable codegeex source with `vim.g.use_codegeex = true`.
 
-> nvim-cmp:
->
-> -   source name is `codegeex`
-> -   kind text is `CodeGeeX`
-> -   highlight group is `CmpItemKindCodeGeeX`
+| nvim-cmp item | value                 |
+| ------------- | --------------------- |
+| source        | `codegeex`            |
+| kind          | `CodeGeeX`            |
+| highlight     | `CmpItemKindCodeGeeX` |
