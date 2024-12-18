@@ -11,7 +11,8 @@ nvim-cmp source for CodeGeeX.
   opts = {
     apikey = "xxx", -- the api key of codegeex.
     apikey_file = "/path/to/apikey/file", -- the api key file of codegeex.
-    range = nil, -- the range to current line for completion context.
+    range = 500, -- the range to current line for completion context.
+    delay = 500, -- the complete delay for performance.
   },
 }
 ```
