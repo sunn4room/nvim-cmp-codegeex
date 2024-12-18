@@ -31,6 +31,10 @@ M.setup = function(opts)
   end
 
   function source:complete(request, callback)
+    if request.completion_context.triggerKind ~= 2 then
+      callback(nil)
+      return
+    end
     local path = vim.fn.expand "%"
     local language = vim.api.nvim_buf_get_option(0, "filetype")
     local cursor = { request.context.cursor.row - 1, request.context.cursor.col - 1 }
