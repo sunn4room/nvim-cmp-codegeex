@@ -31,10 +31,7 @@ M.setup = function(opts)
   end
 
   function source:complete(request, callback)
-    if request.completion_context.triggerKind ~= 2 then
-      callback(nil)
-      return
-    end
+    local prompt = string.sub(request.context.cursor_before_line, request.offset)
     local path = vim.fn.expand "%"
     local language = vim.api.nvim_buf_get_option(0, "filetype")
     local cursor = { request.context.cursor.row - 1, request.context.cursor.col - 1 }
@@ -53,8 +50,8 @@ M.setup = function(opts)
         callback {
           isIncomplete = true,
           items = {{
-            label = spinner_frames[spinner],
-            insertText = "",
+            label = prompt .. " " .. spinner_frames[spinner],
+            insertText = prompt,
             cmp = {
               kind_text = "CodeGeeX",
               kind_hl_group = "CmpItemKindCodeGeeX",
@@ -106,7 +103,7 @@ M.setup = function(opts)
               content = content:sub(1, -2)
             end
             callback({{
-              label = content,
+              label = prompt .. content,
               documentation = {
                 kind = "markdown",
                 value = "```txt\n" .. before .. content .. after .. "\n```",
