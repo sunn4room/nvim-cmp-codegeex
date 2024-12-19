@@ -35,6 +35,10 @@ M.setup = function(opts)
 
   function source:complete(request, callback)
     self.interrupt()
+    callback {
+      isIncomplete = true,
+      items = {},
+    }
     self.timer:start(opts.delay or 500, 0, vim.schedule_wrap(function()
       local prompt = string.sub(request.context.cursor_before_line, request.offset)
       local path = vim.fn.expand "%"
